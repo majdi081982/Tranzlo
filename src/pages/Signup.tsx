@@ -11,10 +11,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/hooks/use-toast';
 import { account } from '@/lib/appwrite';
 import { OAuthProvider } from 'appwrite';
+import LanguageSelector from '@/components/LanguageSelector';
 
 const Signup = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [nativeLang, setNativeLang] = useState<string>("");
 
   const handleGoogleSignup = () => {
     account.createOAuth2Session(
@@ -141,7 +143,12 @@ const Signup = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="native-lang">Native Language</Label>
-                    <Input id="native-lang" placeholder="e.g. Spanish" required className="h-11 rounded-xl" />
+                    <LanguageSelector 
+                      id="native-lang" 
+                      value={nativeLang} 
+                      onValueChange={setNativeLang} 
+                      placeholder="Select your native language"
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="trans-password">Password</Label>
