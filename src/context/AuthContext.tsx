@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { account } from '@/lib/appwrite';
-import { Models } from 'appwrite';
+import { Models, OAuthProvider } from 'appwrite';
 
 interface AuthContextType {
   user: Models.User<Models.Preferences> | null;
@@ -33,8 +33,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const login = () => {
-    // Basic OAuth or redirect to login page logic
-    account.createOAuth2Session('google'); 
+    // Redirecting to login page instead of triggering directly here to allow provider choice
+    window.location.href = '/login';
   };
 
   const logout = async () => {

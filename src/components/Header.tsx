@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Languages, Menu, X } from 'lucide-react';
+import { Languages, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -40,8 +40,12 @@ const Header = () => {
             </Link>
           ))}
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm">Log in</Button>
-            <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">Get Started</Button>
+            <Link to="/login">
+              <Button variant="ghost" size="sm">Log in</Button>
+            </Link>
+            <Link to="/signup">
+              <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">Get Started</Button>
+            </Link>
           </div>
         </nav>
 
@@ -66,8 +70,12 @@ const Header = () => {
                   </Link>
                 ))}
                 <hr className="my-4" />
-                <Button className="w-full bg-indigo-600">Get Started</Button>
-                <Button variant="outline" className="w-full">Log in</Button>
+                <Link to="/signup" onClick={() => setIsOpen(false)}>
+                  <Button className="w-full bg-indigo-600 mb-2">Get Started</Button>
+                </Link>
+                <Link to="/login" onClick={() => setIsOpen(false)}>
+                  <Button variant="outline" className="w-full">Log in</Button>
+                </Link>
               </nav>
             </SheetContent>
           </Sheet>

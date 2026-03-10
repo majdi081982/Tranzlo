@@ -9,6 +9,8 @@ import Jobs from "./pages/Jobs";
 import Translators from "./pages/Translators";
 import Companies from "./pages/Companies";
 import Blog from "./pages/Blog";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +28,8 @@ const App = () => (
             <Route path="/translators" element={<Translators />} />
             <Route path="/companies" element={<Companies />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
