@@ -2,17 +2,35 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Languages, Building2, User } from 'lucide-react';
+import { Languages, Building2, User, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/hooks/use-toast';
+import { account } from '@/lib/appwrite';
+import { OAuthProvider } from 'appwrite';
 
 const Signup = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+
+  const handleGoogleSignup = () => {
+    account.createOAuth2Session(
+      OAuthProvider.Google,
+      `${window.location.origin}/`,
+      `${window.location.origin}/signup`
+    );
+  };
+
+  const handleLinkedInSignup = () => {
+    account.createOAuth2Session(
+      OAuthProvider.Linkedin,
+      `${window.location.origin}/`,
+      `${window.location.origin}/signup`
+    );
+  };
 
   const handleSignupSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +63,34 @@ const Signup = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+              <Button 
+                variant="outline" 
+                className="h-12 rounded-xl border-slate-200 hover:bg-slate-50 flex items-center justify-center gap-3"
+                onClick={handleGoogleSignup}
+              >
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/pjax/google.png" className="w-5 h-5" alt="Google" />
+                Google
+              </Button>
+              <Button 
+                variant="outline" 
+                className="h-12 rounded-xl border-slate-200 hover:bg-slate-50 flex items-center justify-center gap-3"
+                onClick={handleLinkedInSignup}
+              >
+                <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" className="w-5 h-5" alt="LinkedIn" />
+                LinkedIn
+              </Button>
+            </div>
+
+            <div className="relative mb-8">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-slate-200" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-slate-500">Or register with email</span>
+              </div>
+            </div>
+
             <Tabs defaultValue="company" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-8 bg-slate-100 p-1 rounded-xl h-12">
                 <TabsTrigger value="company" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
