@@ -213,6 +213,9 @@ importers:
       postcss:
         specifier: ^8.4.47
         version: 8.5.3
+      ssh2:
+        specifier: ^1.17.0
+        version: 1.17.0
       tailwindcss:
         specifier: ^3.4.11
         version: 3.4.17

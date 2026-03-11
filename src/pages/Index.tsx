@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -32,12 +33,16 @@ const Index = () => {
                 Fast, reliable, and localized for every market in the world.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700 h-14 px-8 text-lg rounded-xl">
-                  Post a Project <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-                <Button size="lg" variant="outline" className="h-14 px-8 text-lg rounded-xl border-2">
-                  Find Translators
-                </Button>
+                <Link to="/jobs/new">
+                  <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700 h-14 px-8 text-lg rounded-xl w-full sm:w-auto">
+                    Post a Project <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+                <Link to="/translators">
+                  <Button size="lg" variant="outline" className="h-14 px-8 text-lg rounded-xl border-2 w-full sm:w-auto">
+                    Find Translators
+                  </Button>
+                </Link>
               </div>
               <div className="mt-8 flex items-center gap-6 text-sm text-slate-500">
                 <div className="flex items-center gap-2">
@@ -152,10 +157,12 @@ const Index = () => {
                 Join thousands of companies and professional translators already using Tranzlo to bridge the communication gap.
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Button size="lg" className="bg-white text-indigo-600 hover:bg-slate-100 h-14 px-8 rounded-xl font-bold">
-                  Start Translating Today
-                </Button>
-                <Button size="lg" variant="outline" className="border-indigo-400 text-white hover:bg-indigo-700 h-14 px-8 rounded-xl">
+                <Link to="/signup">
+                  <Button size="lg" className="bg-white text-indigo-600 hover:bg-slate-100 h-14 px-8 rounded-xl font-bold w-full sm:w-auto">
+                    Start Translating Today
+                  </Button>
+                </Link>
+                <Button size="lg" variant="outline" className="border-indigo-400 text-white hover:bg-indigo-700 h-14 px-8 rounded-xl w-full sm:w-auto">
                   Contact Sales
                 </Button>
               </div>
