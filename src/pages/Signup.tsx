@@ -2,18 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Languages, Building2, User, Loader2, Mail, Lock, UserCircle, Globe } from 'lucide-react';
-import { FcGoogle } from 'react-icons/fc';
-import { FaLinkedin } from 'react-icons/fa';
+import { Building2, User, Loader2, Mail, Lock, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
+import { account } from '@/lib/appwrite';
+import { ID } from 'appwrite';
 import { useAuth } from '@/context/AuthContext';
-import LanguageSelector from '@/components/LanguageSelector';
 import Logo from '@/components/Logo';
 import ConnectionStatus from '@/components/ConnectionStatus';
 
@@ -22,12 +20,9 @@ const Signup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [nativeLang, setNativeLang] = useState<string>("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const [companyUrl, setCompanyUrl] = useState("");
   const [userRole, setUserRole] = useState("company");
 
   useEffect(() => {
@@ -35,10 +30,6 @@ const Signup = () => {
       navigate('/');
     }
   }, [user, navigate]);
-
-  const validatePassword = (pass: string) => {
-    return pass.length >= 8 && /[A-Z]/.test(pass) && /[0-9]/.test(pass);
-  };
 
   const handleSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,48 +39,22 @@ const Signup = () => {
       return;
     }
 
-    if (!validatePassword(password)) {
-      toast({ 
-        title: "Weak Password", 
-        description: "Password must be at least 8 characters with an uppercase letter and a number.", 
-        variant: "destructive" 
-      });
-      return;
-    }
-
     setLoading(true);
     
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            native_language: userRole === 'translator' ? nativeLang : null,
-            role: userRole,
-            company_name: userRole === 'company' ? companyName : null,
-            company_url: userRole === 'company' ? companyUrl : null,
-          }
-        }
+      await account.create(ID.unique(), email, password, fullName);
+      // Auto-login after signup
+      await account.createEmailPasswordSession(email, password);
+      
+      toast({
+        title: "Account Created!",
+        description: "Welcome to Tranzlo.",
       });
-
-      if (error) {
-        throw error;
-      } else {
-        toast({
-          title: "Check your email",
-          description: "We've sent you a verification link to complete your registration.",
-        });
-        navigate('/login');
-      }
+      window.location.href = '/';
     } catch (err: any) {
-      const isNetworkError = err.message === 'Failed to fetch';
       toast({
         title: "Registration Failed",
-        description: isNetworkError 
-          ? "Connection error: Unable to reach the authentication server. Please check if your Supabase instance is online." 
-          : err.message,
+        description: err.message,
         variant: "destructive"
       });
     } finally {
@@ -136,29 +101,12 @@ const Signup = () => {
                       id="full-name" 
                       placeholder="Jane Doe" 
                       required 
-                      className="h-12 pl-10 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-indigo-500" 
+                      className="h-12 pl-10 rounded-xl bg-slate-50 border-none" 
                       value={fullName} 
                       onChange={(e) => setFullName(e.target.value)} 
                     />
                   </div>
                 </div>
-
-                {userRole === 'company' && (
-                  <div className="space-y-2">
-                    <Label htmlFor="company-name">Company Name</Label>
-                    <div className="relative">
-                      <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <Input 
-                        id="company-name" 
-                        placeholder="Tranzlo Inc." 
-                        required 
-                        className="h-12 pl-10 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-indigo-500" 
-                        value={companyName} 
-                        onChange={(e) => setCompanyName(e.target.value)} 
-                      />
-                    </div>
-                  </div>
-                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
@@ -169,7 +117,7 @@ const Signup = () => {
                       type="email" 
                       placeholder="jane@example.com" 
                       required 
-                      className="h-12 pl-10 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-indigo-500" 
+                      className="h-12 pl-10 rounded-xl bg-slate-50 border-none" 
                       value={email} 
                       onChange={(e) => setEmail(e.target.value)} 
                     />
@@ -184,14 +132,14 @@ const Signup = () => {
                       id="password" 
                       type="password" 
                       required 
-                      className="h-12 pl-10 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-indigo-500" 
+                      className="h-12 pl-10 rounded-xl bg-slate-50 border-none" 
                       value={password} 
                       onChange={(e) => setPassword(e.target.value)} 
                     />
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full h-14 bg-indigo-600 hover:bg-indigo-700 rounded-2xl font-black text-lg shadow-lg shadow-indigo-100 mt-4" disabled={loading}>
+                <Button type="submit" className="w-full h-14 bg-indigo-600 hover:bg-indigo-700 rounded-2xl font-black text-lg mt-4" disabled={loading}>
                   {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : "Sign Up Now"}
                 </Button>
               </form>

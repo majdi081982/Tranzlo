@@ -3,13 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Loader2 } from 'lucide-react';
-import { FcGoogle } from 'react-icons/fc';
-import { FaLinkedin } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { supabase } from '@/lib/supabase';
+import { account } from '@/lib/appwrite';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import Logo from '@/components/Logo';
@@ -19,7 +17,6 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [showEmailForm, setShowEmailForm] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -29,34 +26,19 @@ const Login = () => {
     }
   }, [user, navigate]);
 
-  const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin },
-    });
-    if (error) toast({ title: "Login Error", description: error.message, variant: "destructive" });
-  };
-
-  const handleLinkedInLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'linkedin_oidc',
-      options: { redirectTo: window.location.origin },
-    });
-    if (error) toast({ title: "Login Error", description: error.message, variant: "destructive" });
-  };
-
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error) {
-      toast({ title: "Login failed", description: error.message, variant: "destructive" });
-    } else {
+    
+    try {
+      await account.createEmailPasswordSession(email, password);
       toast({ title: "Welcome back!", description: "Successfully logged in." });
-      navigate('/');
+      window.location.href = '/'; // Refresh to update context
+    } catch (error: any) {
+      toast({ title: "Login failed", description: error.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -74,89 +56,42 @@ const Login = () => {
             <CardDescription>Login to manage your translations</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
-            {!showEmailForm ? (
-              <>
-                <Button 
-                  variant="outline" 
-                  className="h-12 rounded-xl border-slate-200 hover:bg-slate-50 flex items-center justify-center gap-3 text-slate-700 font-medium"
-                  onClick={handleGoogleLogin}
-                >
-                  <FcGoogle className="w-5 h-5" />
-                  Continue with Google
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="h-12 rounded-xl border-slate-200 hover:bg-slate-50 flex items-center justify-center gap-3 text-slate-700 font-medium"
-                  onClick={handleLinkedInLogin}
-                >
-                  <FaLinkedin className="w-5 h-5 text-[#0077b5]" />
-                  Continue with LinkedIn
-                </Button>
-                
-                <div className="relative my-4">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-slate-200" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-2 text-slate-500 font-semibold tracking-wider">Or</span>
-                  </div>
+            <form onSubmit={handleEmailLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="name@example.com" 
+                    required 
+                    className="h-12 pl-10 rounded-xl bg-slate-50/50" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </div>
-
-                <Button 
-                  variant="ghost" 
-                  className="h-12 rounded-xl text-slate-600 hover:text-indigo-600 font-semibold"
-                  onClick={() => setShowEmailForm(true)}
-                >
-                  <Mail className="mr-2 h-4 w-4" /> Use Email Address
-                </Button>
-              </>
-            ) : (
-              <form onSubmit={handleEmailLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <Input 
-                      id="email" 
-                      type="email" 
-                      placeholder="name@example.com" 
-                      required 
-                      className="h-12 pl-10 rounded-xl bg-slate-50/50" 
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
-                    <button type="button" className="text-xs text-indigo-600 font-bold hover:underline">Forgot password?</button>
-                  </div>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <Input 
-                      id="password" 
-                      type="password" 
-                      required 
-                      className="h-12 pl-10 rounded-xl bg-slate-50/50" 
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input 
+                    id="password" 
+                    type="password" 
+                    required 
+                    className="h-12 pl-10 rounded-xl bg-slate-50/50" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
                 </div>
-                <Button type="submit" className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-bold mt-2" disabled={loading}>
-                  {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign In"}
-                </Button>
-                <Button 
-                  type="button" 
-                  variant="ghost" 
-                  className="w-full h-10 rounded-xl text-slate-500 font-medium"
-                  onClick={() => setShowEmailForm(false)}
-                >
-                  ← Back to social login
-                </Button>
-              </form>
-            )}
+              </div>
+              <Button type="submit" className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-bold mt-2" disabled={loading}>
+                {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign In"}
+              </Button>
+            </form>
           </CardContent>
           <CardFooter className="flex flex-col gap-4 pb-10">
             <div className="text-sm text-center text-slate-600">

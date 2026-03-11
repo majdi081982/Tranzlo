@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { client } from '@/lib/appwrite';
 import { Badge } from '@/components/ui/badge';
 import { Wifi, WifiOff, Loader2 } from 'lucide-react';
 
@@ -11,13 +11,9 @@ const ConnectionStatus = () => {
   useEffect(() => {
     const checkConnection = async () => {
       try {
-        const { error } = await supabase.from('_non_existent_table').select('count', { count: 'exact', head: true });
-        // If we get an error that isn't a network error (like 401/404), the server is at least reachable
-        if (error && error.message === 'Failed to fetch') {
-          setStatus('offline');
-        } else {
-          setStatus('online');
-        }
+        // Appwrite health check doesn't need auth
+        await fetch(`${client.config.endpoint}/health`, { method: 'GET' });
+        setStatus('online');
       } catch (err) {
         setStatus('offline');
       }

@@ -1,11 +1,11 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
-import { User } from '@supabase/supabase-js';
+import { account } from '@/lib/appwrite';
+import { Models } from 'appwrite';
 
 interface AuthContextType {
-  user: User | null;
+  user: Models.User<Models.Preferences> | null;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -13,27 +13,30 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<Models.User<Models.Preferences> | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check active sessions
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    // Listen for changes on auth state
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    // Check for an active session
+    account.get()
+      .then((response) => {
+        setUser(response);
+      })
+      .catch(() => {
+        setUser(null);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      await account.deleteSession('current');
+      setUser(null);
+    } catch (error) {
+      console.error("Sign out failed", error);
+    }
   };
 
   return (

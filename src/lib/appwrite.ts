@@ -1,11 +1,8 @@
 import { Client, Account, Databases } from 'appwrite';
 
-const client = new Client();
-
-// You will need to replace these with your actual Appwrite project details
-client
-    .setEndpoint('https://cloud.appwrite.io/v1') // Your API Endpoint
-    .setProject('YOUR_PROJECT_ID'); // Your project ID
+const client = new Client()
+    .setEndpoint('http://appwrite.tranzlo.tech/v1') // Your Appwrite Endpoint
+    .setProject('67d018590013d368e734'); // Your project ID
 
 export const account = new Account(client);
 export const databases = new Databases(client);
