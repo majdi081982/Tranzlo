@@ -9,11 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/hooks/use-toast';
-import { account } from '@/lib/appwrite';
-import { ID } from 'appwrite';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import Logo from '@/components/Logo';
-import ConnectionStatus from '@/components/ConnectionStatus';
 
 const Signup = () => {
   const { user } = useAuth();
@@ -42,15 +40,24 @@ const Signup = () => {
     setLoading(true);
     
     try {
-      await account.create(ID.unique(), email, password, fullName);
-      // Auto-login after signup
-      await account.createEmailPasswordSession(email, password);
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            role: userRole,
+          },
+        },
+      });
+
+      if (error) throw error;
       
       toast({
-        title: "Account Created!",
-        description: "Welcome to Tranzlo.",
+        title: "Check your email",
+        description: "We've sent you a confirmation link.",
       });
-      window.location.href = '/';
+      navigate('/login');
     } catch (err: any) {
       toast({
         title: "Registration Failed",
@@ -69,9 +76,6 @@ const Signup = () => {
           <Link to="/">
             <Logo />
           </Link>
-          <div className="mt-4">
-            <ConnectionStatus />
-          </div>
         </div>
         
         <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden">

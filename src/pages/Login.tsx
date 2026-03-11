@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { account } from '@/lib/appwrite';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import Logo from '@/components/Logo';
@@ -26,14 +26,20 @@ const Login = () => {
     }
   }, [user, navigate]);
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
     try {
-      await account.createEmailPasswordSession(email, password);
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
       toast({ title: "Welcome back!", description: "Successfully logged in." });
-      window.location.href = '/'; // Refresh to update context
+      navigate('/');
     } catch (error: any) {
       toast({ title: "Login failed", description: error.message, variant: "destructive" });
     } finally {
@@ -56,7 +62,7 @@ const Login = () => {
             <CardDescription>Login to manage your translations</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
-            <form onSubmit={handleEmailLogin} className="space-y-4">
+            <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
                 <div className="relative">
