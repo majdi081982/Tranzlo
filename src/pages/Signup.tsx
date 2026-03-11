@@ -40,7 +40,7 @@ const Signup = () => {
     setLoading(true);
     
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -52,16 +52,28 @@ const Signup = () => {
       });
 
       if (error) throw error;
-      
-      toast({
-        title: "Check your email",
-        description: "We've sent you a confirmation link.",
-      });
-      navigate('/login');
+
+      // Note: If ENABLE_EMAIL_AUTOCONFIRM is false in your .env, users must click a link in their email.
+      // If data.user exists but data.session is null, it means confirmation is required.
+      if (data.user && !data.session) {
+        toast({
+          title: "Verify your email",
+          description: "A confirmation link has been sent to your email address.",
+        });
+      } else {
+        toast({
+          title: "Account created!",
+          description: "Welcome to Tranzlo.",
+        });
+        navigate('/');
+      }
     } catch (err: any) {
+      console.error("Signup error:", err);
       toast({
         title: "Registration Failed",
-        description: err.message,
+        description: err.message === "Failed to fetch" 
+          ? "Could not connect to Supabase. Check if your URL uses https and CORS is allowed." 
+          : err.message,
         variant: "destructive"
       });
     } finally {
