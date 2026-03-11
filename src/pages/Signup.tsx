@@ -2,49 +2,66 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Languages, Building2, User, Mail } from 'lucide-react';
+import { Languages, Building2, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/hooks/use-toast';
-import { account } from '@/lib/appwrite';
-import { OAuthProvider } from 'appwrite';
+import { supabase } from '@/lib/supabase';
 import LanguageSelector from '@/components/LanguageSelector';
 
 const Signup = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [nativeLang, setNativeLang] = useState<string>("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
 
-  const handleGoogleSignup = () => {
-    account.createOAuth2Session(
-      OAuthProvider.Google,
-      `${window.location.origin}/`,
-      `${window.location.origin}/signup`
-    );
+  const handleGoogleSignup = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin }
+    });
   };
 
-  const handleLinkedInSignup = () => {
-    account.createOAuth2Session(
-      OAuthProvider.Linkedin,
-      `${window.location.origin}/`,
-      `${window.location.origin}/signup`
-    );
+  const handleLinkedInSignup = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'linkedin_oidc',
+      options: { redirectTo: window.location.origin }
+    });
   };
 
-  const handleSignupSubmit = (e: React.FormEvent) => {
+  const handleSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Logic for Appwrite registration would go here
-    setTimeout(() => {
-      setLoading(false);
+    
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+          native_language: nativeLang,
+        }
+      }
+    });
+
+    if (error) {
       toast({
-        title: "Registration successful!",
-        description: "Please check your email to verify your account.",
+        title: "Registration failed",
+        description: error.message,
+        variant: "destructive"
       });
-    }, 1500);
+    } else {
+      toast({
+        title: "Check your email",
+        description: "We've sent a verification link to your email address.",
+      });
+    }
+    setLoading(false);
   };
 
   return (
@@ -107,23 +124,15 @@ const Signup = () => {
                 <form onSubmit={handleSignupSubmit} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="comp-name">Full Name</Label>
-                    <Input id="comp-name" placeholder="John Doe" required className="h-11 rounded-xl" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="company-name">Company Name</Label>
-                    <Input id="company-name" placeholder="Acme Inc." required className="h-11 rounded-xl" />
+                    <Input id="comp-name" placeholder="John Doe" required className="h-11 rounded-xl" value={fullName} onChange={(e) => setFullName(e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="comp-email">Work Email</Label>
-                    <Input id="comp-email" type="email" placeholder="john@company.com" required className="h-11 rounded-xl" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="company-url">Company URL (Optional)</Label>
-                    <Input id="company-url" type="url" placeholder="https://company.com" className="h-11 rounded-xl" />
+                    <Input id="comp-email" type="email" placeholder="john@company.com" required className="h-11 rounded-xl" value={email} onChange={(e) => setEmail(e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="comp-password">Password</Label>
-                    <Input id="comp-password" type="password" required className="h-11 rounded-xl" />
+                    <Input id="comp-password" type="password" required className="h-11 rounded-xl" value={password} onChange={(e) => setPassword(e.target.value)} />
                   </div>
                   <Button type="submit" className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-bold mt-4" disabled={loading}>
                     {loading ? "Creating Account..." : "Sign up as Company"}
@@ -135,11 +144,11 @@ const Signup = () => {
                 <form onSubmit={handleSignupSubmit} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="trans-name">Full Name</Label>
-                    <Input id="trans-name" placeholder="Jane Smith" required className="h-11 rounded-xl" />
+                    <Input id="trans-name" placeholder="Jane Smith" required className="h-11 rounded-xl" value={fullName} onChange={(e) => setFullName(e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="trans-email">Email Address</Label>
-                    <Input id="trans-email" type="email" placeholder="jane@example.com" required className="h-11 rounded-xl" />
+                    <Input id="trans-email" type="email" placeholder="jane@example.com" required className="h-11 rounded-xl" value={email} onChange={(e) => setEmail(e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="native-lang">Native Language</Label>
@@ -152,7 +161,7 @@ const Signup = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="trans-password">Password</Label>
-                    <Input id="trans-password" type="password" required className="h-11 rounded-xl" />
+                    <Input id="trans-password" type="password" required className="h-11 rounded-xl" value={password} onChange={(e) => setPassword(e.target.value)} />
                   </div>
                   <Button type="submit" className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-bold mt-4" disabled={loading}>
                     {loading ? "Creating Account..." : "Sign up as Translator"}

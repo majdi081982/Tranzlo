@@ -5,24 +5,25 @@ import { Link } from 'react-router-dom';
 import { Languages, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { account } from '@/lib/appwrite';
-import { OAuthProvider } from 'appwrite';
+import { supabase } from '@/lib/supabase';
 
 const Login = () => {
-  const handleGoogleLogin = () => {
-    account.createOAuth2Session(
-      OAuthProvider.Google,
-      `${window.location.origin}/`,
-      `${window.location.origin}/login`
-    );
+  const handleGoogleLogin = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
   };
 
-  const handleLinkedInLogin = () => {
-    account.createOAuth2Session(
-      OAuthProvider.Linkedin,
-      `${window.location.origin}/`,
-      `${window.location.origin}/login`
-    );
+  const handleLinkedInLogin = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'linkedin_oidc',
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
   };
 
   return (
