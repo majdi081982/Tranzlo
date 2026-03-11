@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Languages, Building2, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Languages, Building2, User, Loader2, Mail, Lock, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,28 +10,41 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 import LanguageSelector from '@/components/LanguageSelector';
 
 const Signup = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [nativeLang, setNativeLang] = useState<string>("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [userRole, setUserRole] = useState("company");
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const handleGoogleSignup = async () => {
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin }
     });
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
   };
 
   const handleLinkedInSignup = async () => {
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'linkedin_oidc',
       options: { redirectTo: window.location.origin }
     });
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
   };
 
   const handleSignupSubmit = async (e: React.FormEvent) => {
@@ -45,6 +58,7 @@ const Signup = () => {
         data: {
           full_name: fullName,
           native_language: nativeLang,
+          role: userRole
         }
       }
     });
@@ -57,9 +71,11 @@ const Signup = () => {
       });
     } else {
       toast({
-        title: "Check your email",
-        description: "We've sent a verification link to your email address.",
+        title: "Registration Successful!",
+        description: "Please check your email to verify your account.",
       });
+      // Optionally navigate to a "Verify Email" page or back to login
+      navigate('/login');
     }
     setLoading(false);
   };
@@ -110,7 +126,7 @@ const Signup = () => {
               </div>
             </div>
 
-            <Tabs defaultValue="company" className="w-full">
+            <Tabs defaultValue="company" className="w-full" onValueChange={setUserRole}>
               <TabsList className="grid w-full grid-cols-2 mb-8 bg-slate-100 p-1 rounded-xl h-12">
                 <TabsTrigger value="company" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
                   <Building2 className="w-4 h-4 mr-2" /> Company
@@ -120,54 +136,69 @@ const Signup = () => {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="company">
+              <div className="mt-4">
                 <form onSubmit={handleSignupSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="comp-name">Full Name</Label>
-                    <Input id="comp-name" placeholder="John Doe" required className="h-11 rounded-xl" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                    <Label htmlFor="full-name">Full Name</Label>
+                    <div className="relative">
+                      <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <Input 
+                        id="full-name" 
+                        placeholder="John Doe" 
+                        required 
+                        className="h-11 pl-10 rounded-xl" 
+                        value={fullName} 
+                        onChange={(e) => setFullName(e.target.value)} 
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="comp-email">Work Email</Label>
-                    <Input id="comp-email" type="email" placeholder="john@company.com" required className="h-11 rounded-xl" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <Label htmlFor="email">Email Address</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <Input 
+                        id="email" 
+                        type="email" 
+                        placeholder="name@example.com" 
+                        required 
+                        className="h-11 pl-10 rounded-xl" 
+                        value={email} 
+                        onChange={(e) => setEmail(e.target.value)} 
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="comp-password">Password</Label>
-                    <Input id="comp-password" type="password" required className="h-11 rounded-xl" value={password} onChange={(e) => setPassword(e.target.value)} />
-                  </div>
-                  <Button type="submit" className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-bold mt-4" disabled={loading}>
-                    {loading ? "Creating Account..." : "Sign up as Company"}
-                  </Button>
-                </form>
-              </TabsContent>
+                  
+                  {userRole === 'translator' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="native-lang">Native Language</Label>
+                      <LanguageSelector 
+                        id="native-lang" 
+                        value={nativeLang} 
+                        onValueChange={setNativeLang} 
+                        placeholder="Select your native language"
+                      />
+                    </div>
+                  )}
 
-              <TabsContent value="translator">
-                <form onSubmit={handleSignupSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="trans-name">Full Name</Label>
-                    <Input id="trans-name" placeholder="Jane Smith" required className="h-11 rounded-xl" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="trans-email">Email Address</Label>
-                    <Input id="trans-email" type="email" placeholder="jane@example.com" required className="h-11 rounded-xl" value={email} onChange={(e) => setEmail(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="native-lang">Native Language</Label>
-                    <LanguageSelector 
-                      id="native-lang" 
-                      value={nativeLang} 
-                      onValueChange={setNativeLang} 
-                      placeholder="Select your native language"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="trans-password">Password</Label>
-                    <Input id="trans-password" type="password" required className="h-11 rounded-xl" value={password} onChange={(e) => setPassword(e.target.value)} />
+                    <Label htmlFor="password">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <Input 
+                        id="password" 
+                        type="password" 
+                        required 
+                        className="h-11 pl-10 rounded-xl" 
+                        value={password} 
+                        onChange={(e) => setPassword(e.target.value)} 
+                      />
+                    </div>
                   </div>
                   <Button type="submit" className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-bold mt-4" disabled={loading}>
-                    {loading ? "Creating Account..." : "Sign up as Translator"}
+                    {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : `Sign up as ${userRole.charAt(0).toUpperCase() + userRole.slice(1)}`}
                   </Button>
                 </form>
-              </TabsContent>
+              </div>
             </Tabs>
           </CardContent>
           <CardFooter className="flex flex-col gap-4 pb-8">
