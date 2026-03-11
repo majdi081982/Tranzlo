@@ -15,6 +15,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import LanguageSelector from '@/components/LanguageSelector';
 import Logo from '@/components/Logo';
+import ConnectionStatus from '@/components/ConnectionStatus';
 
 const Signup = () => {
   const { user } = useAuth();
@@ -99,10 +100,13 @@ const Signup = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4 py-12">
       <div className="w-full max-w-lg">
-        <div className="flex justify-center mb-8">
+        <div className="flex flex-col items-center mb-8">
           <Link to="/">
             <Logo />
           </Link>
+          <div className="mt-4">
+            <ConnectionStatus />
+          </div>
         </div>
         
         <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden">
