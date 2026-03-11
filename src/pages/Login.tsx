@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Languages, Mail, Lock, Loader2 } from 'lucide-react';
+import { Mail, Lock, Loader2 } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
 import { FaLinkedin } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import Logo from '@/components/Logo';
 
 const Login = () => {
   const { user } = useAuth();
@@ -22,7 +23,6 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // Redirect if already logged in
   useEffect(() => {
     if (user) {
       navigate('/');
@@ -32,9 +32,7 @@ const Login = () => {
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: window.location.origin,
-      },
+      options: { redirectTo: window.location.origin },
     });
     if (error) toast({ title: "Login Error", description: error.message, variant: "destructive" });
   };
@@ -42,9 +40,7 @@ const Login = () => {
   const handleLinkedInLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'linkedin_oidc',
-      options: {
-        redirectTo: window.location.origin,
-      },
+      options: { redirectTo: window.location.origin },
     });
     if (error) toast({ title: "Login Error", description: error.message, variant: "destructive" });
   };
@@ -52,17 +48,10 @@ const Login = () => {
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      toast({
-        title: "Login failed",
-        description: error.message,
-        variant: "destructive"
-      });
+      toast({ title: "Login failed", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Welcome back!", description: "Successfully logged in." });
       navigate('/');
@@ -73,19 +62,16 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
       <div className="w-full max-w-md">
-        <div className="flex justify-center mb-8">
-          <Link to="/" className="flex items-center space-x-2">
-            <Languages className="h-10 w-10 text-indigo-600" />
-            <span className="text-3xl font-bold tracking-tight text-indigo-900">Tranzlo</span>
+        <div className="flex justify-center mb-10">
+          <Link to="/">
+            <Logo />
           </Link>
         </div>
         
-        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden">
+        <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden">
           <CardHeader className="space-y-1 pb-6 text-center">
             <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
-            <CardDescription>
-              Login to access your Tranzlo account
-            </CardDescription>
+            <CardDescription>Login to manage your translations</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
             {!showEmailForm ? (
@@ -112,16 +98,16 @@ const Login = () => {
                     <span className="w-full border-t border-slate-200" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-2 text-slate-500">Or continue with</span>
+                    <span className="bg-white px-2 text-slate-500 font-semibold tracking-wider">Or</span>
                   </div>
                 </div>
 
                 <Button 
                   variant="ghost" 
-                  className="h-12 rounded-xl text-slate-600 hover:text-indigo-600"
+                  className="h-12 rounded-xl text-slate-600 hover:text-indigo-600 font-semibold"
                   onClick={() => setShowEmailForm(true)}
                 >
-                  <Mail className="mr-2 h-4 w-4" /> Sign in with Email
+                  <Mail className="mr-2 h-4 w-4" /> Use Email Address
                 </Button>
               </>
             ) : (
@@ -135,7 +121,7 @@ const Login = () => {
                       type="email" 
                       placeholder="name@example.com" 
                       required 
-                      className="h-11 pl-10 rounded-xl" 
+                      className="h-12 pl-10 rounded-xl bg-slate-50/50" 
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
@@ -144,7 +130,7 @@ const Login = () => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password">Password</Label>
-                    <button type="button" className="text-xs text-indigo-600 font-medium hover:underline">Forgot password?</button>
+                    <button type="button" className="text-xs text-indigo-600 font-bold hover:underline">Forgot password?</button>
                   </div>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -152,7 +138,7 @@ const Login = () => {
                       id="password" 
                       type="password" 
                       required 
-                      className="h-11 pl-10 rounded-xl" 
+                      className="h-12 pl-10 rounded-xl bg-slate-50/50" 
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                     />
@@ -164,18 +150,18 @@ const Login = () => {
                 <Button 
                   type="button" 
                   variant="ghost" 
-                  className="w-full h-10 rounded-xl text-slate-500"
+                  className="w-full h-10 rounded-xl text-slate-500 font-medium"
                   onClick={() => setShowEmailForm(false)}
                 >
-                  Back to social login
+                  ← Back to social login
                 </Button>
               </form>
             )}
           </CardContent>
-          <CardFooter className="flex flex-col gap-4 pb-8">
+          <CardFooter className="flex flex-col gap-4 pb-10">
             <div className="text-sm text-center text-slate-600">
               Don't have an account?{" "}
-              <Link to="/signup" className="text-indigo-600 font-bold hover:underline">
+              <Link to="/signup" className="text-indigo-600 font-black hover:underline">
                 Sign up
               </Link>
             </div>

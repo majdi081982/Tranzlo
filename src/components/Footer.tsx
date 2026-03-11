@@ -2,55 +2,55 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Languages, Github, Twitter, Linkedin } from 'lucide-react';
+import { Github, Twitter, Linkedin } from 'lucide-react';
+import Logo from './Logo';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
-    Admin: [
-      { name: 'Dashboard', href: '/admin' },
-      { name: 'Moderation', href: '/admin/moderation' },
-      { name: 'Analytics', href: '/admin/analytics' },
+    Solutions: [
+      { name: 'Browse Jobs', href: '/jobs' },
+      { name: 'Find Translators', href: '/translators' },
+      { name: 'Enterprise', href: '/companies' },
+    ],
+    Resources: [
+      { name: 'Blog', href: '/blog' },
+      { name: 'API Docs', href: '#' },
+      { name: 'Success Stories', href: '#' },
     ],
     Company: [
-      { name: 'Post a Job', href: '/jobs/new' },
-      { name: 'Find Translators', href: '/translators' },
-      { name: 'Enterprise', href: '/enterprise' },
-    ],
-    Translator: [
-      { name: 'Browse Jobs', href: '/jobs' },
-      { name: 'Your Profile', href: '/profile' },
-      { name: 'Earnings', href: '/earnings' },
+      { name: 'About Us', href: '#' },
+      { name: 'Careers', href: '#' },
+      { name: 'Privacy Policy', href: '#' },
     ],
   };
 
   return (
     <footer className="bg-slate-50 border-t">
       <div className="container px-4 py-12 md:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
           <div className="col-span-2 md:col-span-1">
-            <Link to="/" className="flex items-center space-x-2 mb-4">
-              <Languages className="h-6 w-6 text-indigo-600" />
-              <span className="text-xl font-bold text-indigo-900">Tranzlo</span>
+            <Link to="/" className="inline-block mb-6">
+              <Logo />
             </Link>
-            <p className="text-sm text-muted-foreground mb-4">
-              Connecting the world through professional human translation and localization.
+            <p className="text-sm text-muted-foreground mb-6 max-w-xs">
+              The world's most trusted marketplace for professional human translation and localization.
             </p>
-            <div className="flex space-x-4">
-              <Twitter className="h-5 w-5 text-muted-foreground hover:text-indigo-600 cursor-pointer" />
-              <Linkedin className="h-5 w-5 text-muted-foreground hover:text-indigo-600 cursor-pointer" />
-              <Github className="h-5 w-5 text-muted-foreground hover:text-indigo-600 cursor-pointer" />
+            <div className="flex space-x-5">
+              <Twitter className="h-5 w-5 text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer" />
+              <Linkedin className="h-5 w-5 text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer" />
+              <Github className="h-5 w-5 text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer" />
             </div>
           </div>
 
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category}>
-              <h3 className="font-bold text-indigo-900 mb-4">{category}</h3>
-              <ul className="space-y-2">
+              <h3 className="font-bold text-slate-900 mb-4">{category}</h3>
+              <ul className="space-y-3">
                 {links.map((link) => (
                   <li key={link.name}>
-                    <Link to={link.href} className="text-sm text-muted-foreground hover:text-indigo-600 transition-colors">
+                    <Link to={link.href} className="text-sm text-slate-500 hover:text-indigo-600 transition-colors">
                       {link.name}
                     </Link>
                   </li>
@@ -60,8 +60,13 @@ const Footer = () => {
           ))}
         </div>
         
-        <div className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
+        <div className="mt-16 pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
           <p>© {currentYear} Tranzlo. All rights reserved.</p>
+          <div className="flex gap-6">
+            <a href="#" className="hover:text-indigo-600">Terms</a>
+            <a href="#" className="hover:text-indigo-600">Privacy</a>
+            <a href="#" className="hover:text-indigo-600">Cookies</a>
+          </div>
         </div>
       </div>
     </footer>
