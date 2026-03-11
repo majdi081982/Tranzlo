@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Languages, Building2, User, Loader2, Mail, Lock, UserCircle } from 'lucide-react';
+import { Languages, Building2, User, Loader2, Mail, Lock, UserCircle, Globe } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
 import { FaLinkedin } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,8 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [companyUrl, setCompanyUrl] = useState("");
   const [userRole, setUserRole] = useState("company");
 
   // Redirect if already logged in
@@ -59,8 +61,10 @@ const Signup = () => {
       options: {
         data: {
           full_name: fullName,
-          native_language: nativeLang,
-          role: userRole
+          native_language: userRole === 'translator' ? nativeLang : null,
+          role: userRole,
+          company_name: userRole === 'company' ? companyName : null,
+          company_url: userRole === 'company' ? companyUrl : null,
         }
       }
     });
@@ -153,6 +157,40 @@ const Signup = () => {
                       />
                     </div>
                   </div>
+
+                  {userRole === 'company' && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="company-name">Company Name</Label>
+                        <div className="relative">
+                          <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                          <Input 
+                            id="company-name" 
+                            placeholder="Acme Corp" 
+                            required 
+                            className="h-11 pl-10 rounded-xl" 
+                            value={companyName} 
+                            onChange={(e) => setCompanyName(e.target.value)} 
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="company-url">Company Website (URL)</Label>
+                        <div className="relative">
+                          <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                          <Input 
+                            id="company-url" 
+                            type="url"
+                            placeholder="https://example.com" 
+                            className="h-11 pl-10 rounded-xl" 
+                            value={companyUrl} 
+                            onChange={(e) => setCompanyUrl(e.target.value)} 
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
+
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address</Label>
                     <div className="relative">
