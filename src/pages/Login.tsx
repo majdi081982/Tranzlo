@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Languages, Mail, Lock, Loader2 } from 'lucide-react';
+import { FcGoogle } from 'react-icons/fc';
+import { FaLinkedin } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -90,18 +92,18 @@ const Login = () => {
               <>
                 <Button 
                   variant="outline" 
-                  className="h-12 rounded-xl border-slate-200 hover:bg-slate-50 flex items-center justify-center gap-3"
+                  className="h-12 rounded-xl border-slate-200 hover:bg-slate-50 flex items-center justify-center gap-3 text-slate-700 font-medium"
                   onClick={handleGoogleLogin}
                 >
-                  <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/pjax/google.png" className="w-5 h-5" alt="Google" />
+                  <FcGoogle className="w-5 h-5" />
                   Continue with Google
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="h-12 rounded-xl border-slate-200 hover:bg-slate-50 flex items-center justify-center gap-3"
+                  className="h-12 rounded-xl border-slate-200 hover:bg-slate-50 flex items-center justify-center gap-3 text-slate-700 font-medium"
                   onClick={handleLinkedInLogin}
                 >
-                  <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" className="w-5 h-5" alt="LinkedIn" />
+                  <FaLinkedin className="w-5 h-5 text-[#0077b5]" />
                   Continue with LinkedIn
                 </Button>
                 
