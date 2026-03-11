@@ -35,6 +35,14 @@ const Signup = () => {
     }
   }, [user, navigate]);
 
+  const validatePassword = (pass: string) => {
+    const hasUppercase = /[A-Z]/.test(pass);
+    const hasLowercase = /[a-z]/.test(pass);
+    const hasNumber = /[0-9]/.test(pass);
+    const isLongEnough = pass.length >= 8;
+    return hasUppercase && hasLowercase && hasNumber && isLongEnough;
+  };
+
   const handleGoogleSignup = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -53,6 +61,32 @@ const Signup = () => {
 
   const handleSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation
+    if (!fullName || !email || !password) {
+      toast({ title: "Required Fields", description: "Please fill in all basic information.", variant: "destructive" });
+      return;
+    }
+
+    if (userRole === 'company' && !companyName) {
+      toast({ title: "Required Field", description: "Company Name is required for business accounts.", variant: "destructive" });
+      return;
+    }
+
+    if (userRole === 'translator' && !nativeLang) {
+      toast({ title: "Required Field", description: "Please select your native language.", variant: "destructive" });
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      toast({ 
+        title: "Weak Password", 
+        description: "Password must be at least 8 characters long and include uppercase, lowercase, and a number.", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
     setLoading(true);
     
     const { error } = await supabase.auth.signUp({
@@ -144,7 +178,7 @@ const Signup = () => {
               <div className="mt-4">
                 <form onSubmit={handleSignupSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="full-name">Full Name</Label>
+                    <Label htmlFor="full-name">Full Name <span className="text-red-500">*</span></Label>
                     <div className="relative">
                       <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <Input 
@@ -161,7 +195,7 @@ const Signup = () => {
                   {userRole === 'company' && (
                     <>
                       <div className="space-y-2">
-                        <Label htmlFor="company-name">Company Name</Label>
+                        <Label htmlFor="company-name">Company Name <span className="text-red-500">*</span></Label>
                         <div className="relative">
                           <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                           <Input 
@@ -175,7 +209,7 @@ const Signup = () => {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="company-url">Company Website (URL)</Label>
+                        <Label htmlFor="company-url">Company Website (Optional)</Label>
                         <div className="relative">
                           <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                           <Input 
@@ -192,7 +226,7 @@ const Signup = () => {
                   )}
 
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email Address</Label>
+                    <Label htmlFor="email">Email Address <span className="text-red-500">*</span></Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <Input 
@@ -209,7 +243,7 @@ const Signup = () => {
                   
                   {userRole === 'translator' && (
                     <div className="space-y-2">
-                      <Label htmlFor="native-lang">Native Language</Label>
+                      <Label htmlFor="native-lang">Native Language <span className="text-red-500">*</span></Label>
                       <LanguageSelector 
                         id="native-lang" 
                         value={nativeLang} 
@@ -220,7 +254,7 @@ const Signup = () => {
                   )}
 
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password">Password <span className="text-red-500">*</span></Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <Input 
@@ -232,6 +266,7 @@ const Signup = () => {
                         onChange={(e) => setPassword(e.target.value)} 
                       />
                     </div>
+                    <p className="text-[10px] text-slate-500">Min. 8 characters, with uppercase, lowercase, and a number.</p>
                   </div>
                   <Button type="submit" className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-bold mt-4" disabled={loading}>
                     {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : `Sign up as ${userRole.charAt(0).toUpperCase() + userRole.slice(1)}`}
