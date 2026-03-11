@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import LanguageSelector from '@/components/LanguageSelector';
-import { supabase } from '@/lib/supabase';
+import { databases, DATABASE_ID, COLLECTION_JOBS, ID } from '@/lib/appwrite';
 import { ArrowRight, FileText, Globe, DollarSign, CheckCircle2, Loader2 } from 'lucide-react';
 
 const PostJob = () => {
@@ -43,7 +43,10 @@ const PostJob = () => {
 
     setLoading(true);
     try {
-      const { error } = await supabase.from('jobs').insert([
+      await databases.createDocument(
+        DATABASE_ID,
+        COLLECTION_JOBS,
+        ID.unique(),
         {
           title: formData.title,
           description: formData.description,
@@ -51,14 +54,13 @@ const PostJob = () => {
           target_language: formData.targetLanguage,
           budget: parseFloat(formData.budget),
           deadline: formData.deadline,
-          user_id: user.id,
-          user_name: user.user_metadata.full_name || 'Anonymous',
-          status: 'open'
+          user_id: user.$id,
+          user_name: user.name || 'Anonymous',
+          status: 'open',
+          created_at: new Date().toISOString()
         }
-      ]);
+      );
 
-      if (error) throw error;
-      
       toast({
         title: "Project Posted!",
         description: "Your translation project is now live and visible to experts.",

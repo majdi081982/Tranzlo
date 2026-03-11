@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Clock, DollarSign, Filter, Globe } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { databases, DATABASE_ID, COLLECTION_JOBS } from '@/lib/appwrite';
+import { Query } from 'appwrite';
 import { formatDistance } from 'date-fns';
 
 const Jobs = () => {
@@ -22,13 +23,12 @@ const Jobs = () => {
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('jobs')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setJobs(data || []);
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTION_JOBS,
+        [Query.orderDesc('created_at')]
+      );
+      setJobs(response.documents || []);
     } catch (error) {
       console.error("Failed to fetch jobs:", error);
     } finally {
@@ -76,7 +76,7 @@ const Jobs = () => {
             ) : (
               <div className="space-y-4">
                 {filteredJobs.map((job) => (
-                  <div key={job.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:border-indigo-200 transition-all cursor-pointer group">
+                  <div key={job.$id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:border-indigo-200 transition-all cursor-pointer group">
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <h3 className="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{job.title}</h3>
@@ -93,7 +93,7 @@ const Jobs = () => {
                         <DollarSign className="h-4 w-4" /> ${job.budget}
                       </div>
                       <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" /> {formatDistance(new Date(job.created_at), new Date(), { addSuffix: true })}
+                        <Clock className="h-4 w-4" /> {job.created_at ? formatDistance(new Date(job.created_at), new Date(), { addSuffix: true }) : 'Recently'}
                       </div>
                     </div>
 

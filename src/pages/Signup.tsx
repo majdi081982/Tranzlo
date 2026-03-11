@@ -9,12 +9,12 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
+import { account, ID } from '@/lib/appwrite';
 import { useAuth } from '@/context/AuthContext';
 import Logo from '@/components/Logo';
 
 const Signup = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -40,40 +40,25 @@ const Signup = () => {
     setLoading(true);
     
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            role: userRole,
-          },
-        },
+      // 1. Create the account
+      await account.create(ID.unique(), email, password, fullName);
+      
+      // 2. Create the session automatically
+      await account.createEmailPasswordSession(email, password);
+      
+      // 3. Update local auth state
+      await refreshUser();
+
+      toast({
+        title: "Account created!",
+        description: "Welcome to Tranzlo.",
       });
-
-      if (error) throw error;
-
-      // Note: If ENABLE_EMAIL_AUTOCONFIRM is false in your .env, users must click a link in their email.
-      // If data.user exists but data.session is null, it means confirmation is required.
-      if (data.user && !data.session) {
-        toast({
-          title: "Verify your email",
-          description: "A confirmation link has been sent to your email address.",
-        });
-      } else {
-        toast({
-          title: "Account created!",
-          description: "Welcome to Tranzlo.",
-        });
-        navigate('/');
-      }
+      navigate('/');
     } catch (err: any) {
       console.error("Signup error:", err);
       toast({
         title: "Registration Failed",
-        description: err.message === "Failed to fetch" 
-          ? "Could not connect to Supabase. Check if your URL uses https and CORS is allowed." 
-          : err.message,
+        description: err.message,
         variant: "destructive"
       });
     } finally {
