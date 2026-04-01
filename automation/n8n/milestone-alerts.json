@@ -1,0 +1,16 @@
+{
+  "name": "Tranzlo Milestone Completion Alerts",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "tranzlo-milestone-complete",
+        "httpMethod": "POST"
+      },
+      "name": "Milestone Completed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [260, 240]
+    }
+  ],
+  "connections": {}
+}

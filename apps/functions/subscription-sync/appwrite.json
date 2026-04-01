@@ -1,0 +1,7 @@
+{
+  "name": "subscription-sync",
+  "runtime": "node-20.0",
+  "entrypoint": "src/main.js",
+  "enabled": true,
+  "logging": true
+}

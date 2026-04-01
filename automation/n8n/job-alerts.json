@@ -1,0 +1,29 @@
+{
+  "name": "Tranzlo Job Alerts",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "tranzlo-job-alerts",
+        "httpMethod": "POST"
+      },
+      "name": "Incoming Job",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [260, 240]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { jobId: $json.jobId, strategy: ['languagePairs','specialties','country','experienceLevel','catTools'] } }];"
+      },
+      "name": "Build Match Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [540, 240]
+    }
+  ],
+  "connections": {
+    "Incoming Job": {
+      "main": [[{ "node": "Build Match Payload", "type": "main", "index": 0 }]]
+    }
+  }
+}

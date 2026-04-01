@@ -1,0 +1,30 @@
+{
+  "name": "Tranzlo Trial Ending Reminders",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "hours", "hoursInterval": 24 }]
+        }
+      },
+      "name": "Daily Sweep",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [260, 240]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { collection: 'subscriptions', state: 'trialing', notifyWhenDaysRemaining: [3,1] } }];"
+      },
+      "name": "Select Expiring Trials",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [560, 240]
+    }
+  ],
+  "connections": {
+    "Daily Sweep": {
+      "main": [[{ "node": "Select Expiring Trials", "type": "main", "index": 0 }]]
+    }
+  }
+}

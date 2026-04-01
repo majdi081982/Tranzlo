@@ -1,0 +1,30 @@
+{
+  "name": "Tranzlo Incomplete Profile Reminder",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "tranzlo-profile-reminder",
+        "httpMethod": "POST"
+      },
+      "name": "Signup Completed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [260, 240]
+    },
+    {
+      "parameters": {
+        "amount": 24,
+        "unit": "hours"
+      },
+      "name": "Wait 24 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [540, 240]
+    }
+  ],
+  "connections": {
+    "Signup Completed": {
+      "main": [[{ "node": "Wait 24 Hours", "type": "main", "index": 0 }]]
+    }
+  }
+}

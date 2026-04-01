@@ -1,0 +1,29 @@
+{
+  "name": "Tranzlo Payment Webhook Update",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "tranzlo-payment-webhook",
+        "httpMethod": "POST"
+      },
+      "name": "Payment Provider Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [260, 240]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { collections: ['payments','subscriptions','audit_logs'], providerEvent: $json.type } }];"
+      },
+      "name": "Prepare Subscription Sync",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [560, 240]
+    }
+  ],
+  "connections": {
+    "Payment Provider Webhook": {
+      "main": [[{ "node": "Prepare Subscription Sync", "type": "main", "index": 0 }]]
+    }
+  }
+}

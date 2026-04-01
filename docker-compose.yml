@@ -1,0 +1,58 @@
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: tranzlo-nginx
+    depends_on:
+      - frontend
+      - appwrite
+      - n8n
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./infra/nginx/certs:/etc/nginx/certs:ro
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: tranzlo-frontend
+    env_file:
+      - .env
+    expose:
+      - "3000"
+    restart: unless-stopped
+
+  appwrite:
+    image: appwrite/appwrite:latest
+    container_name: tranzlo-appwrite
+    env_file:
+      - .env
+    expose:
+      - "80"
+    volumes:
+      - appwrite-storage:/storage
+    restart: unless-stopped
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: tranzlo-n8n
+    env_file:
+      - .env
+    environment:
+      N8N_HOST: n8n.tranzlo.net
+      N8N_PROTOCOL: https
+      WEBHOOK_URL: https://n8n.tranzlo.net/
+      N8N_EDITOR_BASE_URL: https://n8n.tranzlo.net/
+      GENERIC_TIMEZONE: Asia/Hebron
+    expose:
+      - "5678"
+    volumes:
+      - n8n-data:/home/node/.n8n
+    restart: unless-stopped
+
+volumes:
+  appwrite-storage:
+  n8n-data:

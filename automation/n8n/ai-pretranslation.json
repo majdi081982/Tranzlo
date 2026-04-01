@@ -1,0 +1,16 @@
+{
+  "name": "Tranzlo AI Pretranslation Trigger",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "tranzlo-ai-pretranslation",
+        "httpMethod": "POST"
+      },
+      "name": "Pretranslation Requested",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [260, 240]
+    }
+  ],
+  "connections": {}
+}

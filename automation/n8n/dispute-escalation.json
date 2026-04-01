@@ -1,0 +1,16 @@
+{
+  "name": "Tranzlo Dispute Escalation Alerts",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "tranzlo-dispute-escalation",
+        "httpMethod": "POST"
+      },
+      "name": "Dispute Escalated",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [260, 240]
+    }
+  ],
+  "connections": {}
+}

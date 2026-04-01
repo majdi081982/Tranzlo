@@ -1,0 +1,19 @@
+{
+  "name": "tranzlo",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @tranzlo/web",
+    "build": "npm run build --workspace @tranzlo/web",
+    "lint": "npm run lint --workspace @tranzlo/web",
+    "typecheck": "npm run typecheck --workspace @tranzlo/web",
+    "start": "npm run start --workspace @tranzlo/web"
+  },
+  "engines": {
+    "node": ">=20.11.0"
+  }
+}
